@@ -1,15 +1,15 @@
 ## Holberton Simple Shell project
 ## Requirements
-* Allowed editors: '''vi''', '''vim''', '''emacs'''
+* Allowed editors: ```vi```, ```vim```, ```emacs```
 * All files will be compiled on Ubuntu 14.04 LTS
-* C programs and functions will be compiled with '''gcc 4.8.4''' using the flags '''-Wall''' '''-Werror''' '''-Wextra''' and '''-pedantic'''
+* C programs and functions will be compiled with ```gcc 4.8.4``` using the flags ```-Wall``` ```-Werror``` ```-Wextra``` and ```-pedantic```
 * All your files should end with a new line
-* Code should use the '''Betty''' style. It will be checked using [betty-style.pl](https://github.com/holbertonschool/Betty/blob/master/betty-style.pl) and [betty-doc.pl](https://github.com/holbertonschool/Betty/blob/master/betty-doc.pl)
+* Code should use the ```Betty``` style. It will be checked using [betty-style.pl](https://github.com/holbertonschool/Betty/blob/master/betty-style.pl) and [betty-doc.pl](https://github.com/holbertonschool/Betty/blob/master/betty-doc.pl)
 * No more than 5 functions per file
 * Header files should be include guarded
 ## Output
-* Unless specified otherwise, your program must have the exact same output as '''sh''' ('''/bin/sh''') as well as the exact same error output.
-* The only difference is when you print an error, the name of the program must be equivalent to your '''argv[0]'''
+* Unless specified otherwise, your program must have the exact same output as ```sh``` (```/bin/sh```) as well as the exact same error output.
+* The only difference is when you print an error, the name of the program must be equivalent to your ```argv[0]```
 ## Mandatory Tasks
 Task Number | Description
 ----------- | -----------
