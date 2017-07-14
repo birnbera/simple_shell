@@ -13,5 +13,6 @@ char *get_next_line(void);
 void exit_and_free(int);
 void append_to_free_list(char **);
 int del_from_free_list(char **);
+char *hsh_strtok(char *, const char *);
 
 #endif /* _HSH_H_ */
