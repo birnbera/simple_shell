@@ -1,6 +1,13 @@
 #include "hsh.h"
 
-env_t *copyenv(char *envp[])
+/**
+ * copyenv - utility function to parse environment into linked list of
+ * structs containing name and value of variables.
+ * @envp: pointer to environment variable strings
+ *
+ * Return: pointer to head of linked list of environment structs
+ */
+env_t *copyenv(struct hsh_state *state, char *envp[])
 {
 	env_t *new, *prev, *envhead = NULL;
 	char *name, *value;
@@ -8,11 +15,11 @@ env_t *copyenv(char *envp[])
 	if (envp && *envp)
 	{
 		name = hsh_strtok(*envp, "=");
-                value = hsh_strtok(NULL, NULL);
-                new = create_venv((const char *) name, (const char *) value);
+		value = hsh_strtok(NULL, "");
+		new = create_venv((const char *) name, (const char *) value);
 		if (new == NULL)
 		{
-			printerror("malloc");
+			printerror(state, "malloc");
 			return (NULL);
 		}
                 new->next = NULL;
@@ -22,30 +29,38 @@ env_t *copyenv(char *envp[])
 	while (envp && *envp)
 	{
 		name = hsh_strtok(*envp, "=");
-		value = hsh_strtok(NULL, NULL);
+		value = hsh_strtok(NULL, "");
 		new = create_venv((const char *) name, (const char *) value);
 		if (new == NULL)
 		{
-			printerror("malloc");
+			printerror(state, "malloc");
 			break;
 		}
 		new->next = NULL;
 		prev->next = new;
+		prev = new;
 		envp++;
 	}
 	return (envhead);
 }
 
-char **env_to_arr(struct st_vars *vars)
+/**
+ * env_to_arr - utility function to convert environment linked list
+ * back to array of pointers to strings for use with `execve'
+ * @state: struct of current shell state
+ *
+ * Return: pointer to beginning of array of strings representing environment
+ */
+char **env_to_arr(struct hsh_state *state)
 {
-	size_t i, combined_len, size = vars->envsize + 1;
-	env_t *envhead = vars->env;
+	size_t i, combined_len, size = state->envsize + 1;
+	env_t *envhead = state->env;
 	char **envp;
 
 	envp = malloc(sizeof(char *) * size);
 	if (envp == NULL)
 	{
-		printerror("malloc");
+		printerror(state, "malloc");
 		return (NULL);
 	}
 	for (i = 0; envhead; i++)
@@ -55,7 +70,7 @@ char **env_to_arr(struct st_vars *vars)
 		envp[i] = malloc(sizeof(char) * combined_len);
 		if (envp[i] == NULL)
 		{
-			printerror("malloc");
+			printerror(state, "malloc");
 			break;
 		}
 		strcpy(envp[i], envhead->name);
@@ -67,6 +82,13 @@ char **env_to_arr(struct st_vars *vars)
 	return (envp);
 }
 
+/**
+ * countenv - utility function to count the number of elements in environment
+ * linked list.
+ * @env: pointer to head of environment linked list
+ *
+ * Return: Unsigned integer of number of total elements
+ */
 size_t countenv(env_t *env)
 {
 	size_t count = 0;
@@ -79,117 +101,13 @@ size_t countenv(env_t *env)
 	return (count);
 }
 
-void hsh_env(struct st_vars *vars)
-{
-	env_t *envhead = vars->env;
-
-	while (envhead)
-	{
-		hsh_puts(envhead->name);
-		hsh_putchar('=');
-		hsh_puts(envhead->value);
-		hsh_putchar('\n');
-		envhead = envhead->next;
-	}
-}
-
-int hsh_unsetenv(struct st_vars *vars, const char *name)
-{
-	env_t *last, *envhead = vars->env;
-
-	if (name == NULL || *name == '\0' || strchr(name, '='))
-	{
-		errno = EINVAL;
-		printerror("unsetenv");
-		return (-1);
-	}
-	if (envhead == NULL)
-		return (0);
-	if (strcmp(envhead->name, name) == 0)
-	{
-		vars->env = envhead->next;
-		free(envhead->name);
-		free(envhead->value);
-		free(envhead);
-		return (0);
-	}
-	last = envhead;
-	envhead = envhead->next;
-	while (envhead)
-	{
-		if (strcmp(envhead->name, name) == 0)
-		{
-			last->next = envhead->next;
-			free(envhead->name);
-			free(envhead->value);
-			free(envhead);
-			return (0);
-		}
-		last = envhead;
-		envhead = envhead->next;
-	}
-	return (0);
-}
-
-int hsh_setenv(struct st_vars *vars,
-		const char *name, const char *value, int overwrite)
-{
-	env_t *new, *envhead = var->env;
-	char *valuecpy;
-
-	if (name == NULL || *name == '\0' || strchr(name, '='))
-	{
-		errno = EINVAL;
-		printerror("setenv");
-		return (-1);
-	}
-	while (envhead && envhead->next)
-	{
-		if (overwrite && strcmp(envhead->name, name) == 0)
-		{
-
-			valuecpy = strdup(value);
-			if (valuecpy == NULL)
-			{
-				errno = ENOMEM;
-				printerror("setenv");
-				return (-1);
-			}
-			free(envhead->value);
-			envhead->value = valuecpy;
-			return (0);
-		}
-		envhead = envhead->next;
-	}
-	new = create_venv(vars, name, value);
-	if (new == NULL)
-	{
-		errno = ENOMEM;
-		printerror("setenv");
-		return (-1);
-	}
-	var->envsize++;
-	if (envhead)
-	{
-		envhead->next = new;
-		return (0);
-	}
-	var->env = new;
-	return (0);
-}
-
-char *hsh_getenv(struct st_vars *vars, const char *name)
-{
-	env_t *envhead = vars->envh;
-
-	while (envhead)
-	{
-		if (strcmp(envhead->name, name) == 0)
-			return (envhead->value);
-	}
-	return (NULL);
-}
-
+/**
+ * create_venv - utility function to add new node to environment linked list
+ * @name: name of variable to add
+ * @value: value of variable to add
+ *
+ * Return: pointer to struct containing node; NULL on failure
+ */
 env_t *create_venv(const char *name, const char *value)
 {
 	env_t *new = malloc(sizeof(env_t));
@@ -197,13 +115,13 @@ env_t *create_venv(const char *name, const char *value)
 	if (new == NULL)
 		return (NULL);;
 	new->name = strdup(name);
-	if (new->name = NULL)
+	if (new->name == NULL)
 	{
 		free(new);
 		return (NULL);
 	}
 	new->value = strdup(value);
-	if (new->value = NULL)
+	if (new->value == NULL)
 	{
 		free(new->name);
 		free(new);
