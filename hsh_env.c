@@ -3,6 +3,7 @@
 /**
  * copyenv - utility function to parse environment into linked list of
  * structs containing name and value of variables.
+ * @state: struct containing shell state variables, such as environment
  * @envp: pointer to environment variable strings
  *
  * Return: pointer to head of linked list of environment structs
@@ -22,9 +23,9 @@ env_t *copyenv(struct hsh_state *state, char *envp[])
 			printerror(state, "malloc");
 			return (NULL);
 		}
-                new->next = NULL;
+		new->next = NULL;
 		envhead = prev = new;
-                envp++;
+		envp++;
 	}
 	while (envp && *envp)
 	{
@@ -113,7 +114,7 @@ env_t *create_venv(const char *name, const char *value)
 	env_t *new = malloc(sizeof(env_t));
 
 	if (new == NULL)
-		return (NULL);;
+		return (NULL);
 	new->name = strdup(name);
 	if (new->name == NULL)
 	{

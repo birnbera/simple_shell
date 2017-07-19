@@ -1,5 +1,10 @@
 #include "hsh.h"
 
+/**
+ * search_and_exec - routine to search for appropriate command to
+ * call, first in the builtins, then using the `PATH' variable
+ * @state: struct containing shell state variables
+ */
 void search_and_exec(struct hsh_state *state)
 {
 	if (check_builtin(state) == 0)
@@ -9,6 +14,14 @@ void search_and_exec(struct hsh_state *state)
 	printerror(state, "");
 }
 
+/**
+ * check_builtin - subroutine to check whether current command is
+ * a builtin.
+ * @state: struct containing shell state variables
+ *
+ * Return: 0 if command is a builtin and was successfully called,
+ * 0 otherwise.
+ */
 int check_builtin(struct hsh_state *state)
 {
 	builtin_t **builtins = state->builtins;
@@ -26,11 +39,18 @@ int check_builtin(struct hsh_state *state)
 	return (-1);
 }
 
+/**
+ * check_path - subroutine to check whether current command can be
+ * found in the search path.
+ * @state: struct containing shell state variables
+ *
+ * Return: 0 if command is an executible and is successfully executed,
+ * -1 otherwise.
+ */
 int check_path(struct hsh_state *state)
 {
-	pid_t child;
 	char full_path[1024];
-	char **envp, *dir, *path_copy, *path = hsh_getenv(state, "PATH");
+	char *dir, *path_copy, *path = hsh_getenv(state, "PATH");
 	char **command = state->command;
 
 	if (!command || !command[0])
@@ -52,31 +72,36 @@ int check_path(struct hsh_state *state)
 			strcat(full_path, "/");
 		strcat(full_path, state->command[0]);
 		if (access(full_path, F_OK) == 0)
-		{
-			if ((child = fork()) < 0)
-			{
-				printerror(state, "fork");
-			}
-			if (child == 0)
-			{
-				envp = env_to_arr(state);
-				if (execve(full_path, state->command, envp))
-				{
-					free(envp);
-					free(path_copy);
-					state->status = errno;
-					printerror(state, "execve");
-					exit_and_free(state);
-				}
-			}
-			if (child > 0)
-			{
-				wait(&state->status);
-				return (0);
-			}
-		}
+			call(state, full_path);
 		dir = hsh_strtok(NULL, ":");
 	}
 	errno = ENOENT;
 	return (-1);
+}
+
+/**
+ * call - subroutine to call current command in a subprocess
+ * @state: struct containing shell state variables
+ * @full_path: complete path to the executible if it exists
+ */
+void call(struct hsh_state *state, const char *full_path)
+{
+	char **envp;
+	pid_t child = fork();
+
+	if (child < 0)
+		printerror(state, "fork");
+	if (child == 0)
+	{
+		envp = env_to_arr(state);
+		if (execve(full_path, state->command, envp))
+		{
+			free(envp);
+			free(path_copy);
+			printerror(state, "execve");
+			exit_and_free(state);
+		}
+	}
+	if (child > 0)
+		wait(&state->status);
 }

@@ -1,13 +1,22 @@
 #include "hsh.h"
 
+/**
+ * hsh_puts - utility to write a string to stdout
+ * @str: string to write verbatim
+ */
 void hsh_puts(const char * const str)
 {
 	size_t i;
+
 	for (i = 0; str[i]; i++)
 		;
 	write(1, str, i);
 }
 
+/**
+ * hsh_putchar - utility to write a single char to stdou
+ * @c: char to write
+ */
 void hsh_putchar(const char c)
 {
 	write(1, &c, 1);
@@ -109,9 +118,8 @@ int hsh_setenv(struct hsh_state *state,
 			valuecpy = strdup(value);
 			if (valuecpy == NULL)
 			{
-				errno = ENOMEM;
 				printerror(state, "setenv");
-				return (-1);
+				exit_and_free(state);
 			}
 			free(envhead->value);
 			envhead->value = valuecpy;
@@ -122,9 +130,8 @@ int hsh_setenv(struct hsh_state *state,
 	new = create_venv(name, value);
 	if (new == NULL)
 	{
-		errno = ENOMEM;
 		printerror(state, "setenv");
-		return (-1);
+		exit_and_free(state);
 	}
 	state->envsize++;
 	if (envhead)

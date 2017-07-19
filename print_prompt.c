@@ -1,6 +1,9 @@
-#include <stdio.h>
+#include "hsh.h"
 
+/**
+ * print_prompt - simple function to print a prompt to stdout
+ */
 void print_prompt(void)
 {
-	printf("$ ");
+	hsh_puts("$ ");
 }

@@ -13,12 +13,48 @@
 #include <string.h>
 #include <ctype.h>
 
+/**
+ * env_t - Typedef for environment linked list node
+ */
 typedef struct env env_t;
+
+/**
+ * builtin_t - Typedef for builtin function struct
+ */
 typedef struct builtin builtin_t;
+
+/**
+ * var_t - Typedef for generic shell variable struct
+ */
 typedef struct var var_t;
+
+/**
+ * alias_T - Typedef for command alias struct
+ */
 typedef struct alias alias_t;
 
-struct hsh_state {
+/**
+ * struct hsh_state - Struct to hold persistant shell variables and lists
+ * @command: command to be passed to `execve'
+ * @env: linked list of environment variables
+ * @argv: arguments passed to main from initial invocation
+ * @envsize: stored size of environment linked list to facilitate operations
+ * @lineptr: line of input text returned by `getline'
+ * @linesize: number of elements allocated to `lineptr'
+ * @builtins: array of structs for each builtin function and its name
+ * @vars: pointer to list of generic shell variables
+ * @aliases: pointer to list of command aliases
+ * @commandcount: number of commands so far executed by the current shell
+ * @status: return status of previous command
+ *
+ * Description: This struct contains all the information about the current
+ * state of the shell program and is passed from function to function. This
+ * not only simplifies keeping track of variables, but also allows functions
+ * that have encountered an error to free dynamically allocated memory and exit
+ * without returning to the `main' function.
+ */
+struct hsh_state
+{
 	char **command; /* needs to be freed */
 	env_t *env; /* needs to be freed */
 	char **argv;
@@ -32,25 +68,63 @@ struct hsh_state {
 	int status;
 };
 
-struct env {
+/**
+ * struct env - node of linked list to hold environment variables
+ * @next: pointer to next node in list
+ * @name: variable name
+ * @value: variable value
+ *
+ * Description: each variable is parsed from the form `name=value' and stored
+ * with `name' and `value' separated for ease of retrieval and use.
+ */
+struct env
+{
 	struct env *next;
 	char *name;
 	char *value;
 };
 
-struct alias {
+/**
+ * struct alias - node of linked list to hold command aliases
+ * @next: pointer to next node in list
+ * @alname: command alias
+ * @alvalue: alias replacement string
+ *
+ * Description: when set by `alias' builtin using `alias=`replacement string'',
+ * the alias is set to `alname' and the replacement to `alvalue'
+ */
+struct alias
+{
 	struct alias *next;
 	char *alname;
 	char *alvalue;
 };
 
-struct var {
+/**
+ * struct var - node of linked list to contain generic shell variables
+ * @next: next node in linked list
+ * @varname: name of variable
+ * @varval: variable value
+ *
+ * Description: similar to env but not exported to child processes
+ */
+struct var
+{
 	struct var *next;
 	char *varname;
 	char *varval;
 };
 
-struct builtin {
+/**
+ * struct builtin - struct containing name of builtin and function pointer
+ * @name: name of builtin command
+ * @func: pointer to function taking `struct hsh_state' and returning void
+ *
+ * Description: struct to store builtin functions and their names using a
+ * consistant interface for all calls.
+ */
+struct builtin
+{
 	char *name;
 	void (*func)(struct hsh_state *);
 };
