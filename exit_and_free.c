@@ -26,7 +26,8 @@ void set_builtins(struct hsh_state *state)
 {
 	builtin_t *builtin;
 	builtin_t builtins[] = {
-		{"exit", exit_and_free},
+		{"exit", exit_wrap},
+		{"env", hsh_env},
 		{NULL, NULL}
 	};
 	size_t i;
@@ -78,6 +79,8 @@ void init_state(struct hsh_state *state, char **argv, char **envp)
 	state->linesize = 0;
 	state->commandcount = 0;
 	state->envsize = countenv(state->env);
+	state->status = 0;
+	state->err = &errno;
 	set_builtins(state);
 }
 
@@ -90,12 +93,12 @@ void exit_wrap(struct hsh_state *state)
 {
 	if (isnum(state->command[1]))
 	{
-		state->status = atoi(state->command[1]);
+		if (state->command[1])
+			state->status = atoi(state->command[1]);
 		exit_and_free(state);
 	}
 	state->status = 2;
 	printerror(state, "exit");
-	exit_and_free(state);
 }
 
 /**

@@ -10,10 +10,8 @@ void get_next_line(struct hsh_state *state)
 	errno = 0;
 	if ((getline(&state->lineptr, &state->linesize, stdin)) == -1)
 	{
-		putchar('\n');
 		if (errno)
 		{
-			state->status = errno;
 			printerror(state, "getline");
 		}
 		exit_and_free(state);

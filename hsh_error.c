@@ -8,5 +8,6 @@
  */
 void printerror(struct hsh_state *state, const char * const msg)
 {
+	(void)(state);
 	perror(msg);
 }

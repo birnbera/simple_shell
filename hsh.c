@@ -6,6 +6,7 @@
  */
 void handler(int sig)
 {
+	(void)(sig);
 	hsh_putchar('\n');
 	print_prompt();
 	fflush(stdout);
@@ -23,6 +24,7 @@ void handler(int sig)
 int main(int argc, char *argv[], char *envp[])
 {
 	struct hsh_state state;
+	(void)(argc);
 
 	init_state(&state, argv, envp);
 	if (isatty(STDIN_FILENO))
