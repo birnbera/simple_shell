@@ -46,6 +46,7 @@ typedef struct alias alias_t;
  * @aliases: pointer to list of command aliases
  * @commandcount: number of commands so far executed by the current shell
  * @status: return status of previous command
+ * @errno: pointer to currently set errno value
  *
  * Description: This struct contains all the information about the current
  * state of the shell program and is passed from function to function. This
@@ -66,6 +67,7 @@ struct hsh_state
 	alias_t *aliases; /* needs to be freed */
 	size_t commandcount;
 	int status;
+	int *err;
 };
 
 /**
@@ -146,6 +148,7 @@ int check_builtin(struct hsh_state *);
 int check_path(struct hsh_state *);
 void init_state(struct hsh_state *state, char **argv, char **envp);
 void exit_and_free(struct hsh_state *);
+void exit_wrap(struct hsh_state *);
 void free_command(struct hsh_state *);
 void free_env(struct hsh_state *);
 void free_lineptr(struct hsh_state *);
