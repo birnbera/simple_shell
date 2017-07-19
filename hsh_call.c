@@ -57,6 +57,11 @@ int check_path(struct hsh_state *state)
 		return (0);
 	if (path == NULL)
 		path = "";
+	if (command[0][0] == '/')
+	{
+		call(state, command[0]);
+		return (0);
+	}
 	path_copy = strdup(path);
 	if (path_copy == NULL)
 	{
