@@ -154,5 +154,7 @@ void free_vars(struct hsh_state *);
 void free_aliases(struct hsh_state *);
 void hsh_puts(const char * const);
 void hsh_putchar(const char);
+void call(struct hsh_state *, const char *);
+void set_builtins(struct hsh_state *);
 
 #endif /* _HSH_H_ */

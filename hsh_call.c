@@ -60,7 +60,6 @@ int check_path(struct hsh_state *state)
 	path_copy = strdup(path);
 	if (path_copy == NULL)
 	{
-		errno = ENOMEM;
 		printerror(state, "malloc");
 		exit_and_free(state);
 	}
@@ -72,9 +71,13 @@ int check_path(struct hsh_state *state)
 			strcat(full_path, "/");
 		strcat(full_path, state->command[0]);
 		if (access(full_path, F_OK) == 0)
+		{
 			call(state, full_path);
+			return (0);
+		}
 		dir = hsh_strtok(NULL, ":");
 	}
+	free(path_copy);
 	errno = ENOENT;
 	return (-1);
 }
@@ -97,7 +100,6 @@ void call(struct hsh_state *state, const char *full_path)
 		if (execve(full_path, state->command, envp))
 		{
 			free(envp);
-			free(path_copy);
 			printerror(state, "execve");
 			exit_and_free(state);
 		}
