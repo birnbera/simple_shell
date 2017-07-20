@@ -66,7 +66,7 @@ char **env_to_arr(struct hsh_state *state)
 	}
 	for (i = 0; envhead; i++)
 	{
-		combined_len = strlen(envhead->name) + strlen(envhead->value);
+		combined_len = hsh_strlen(envhead->name) + hsh_strlen(envhead->value);
 		combined_len += 2; /* space for `=' and `\0' */
 		envp[i] = malloc(sizeof(char) * combined_len);
 		if (envp[i] == NULL)
@@ -74,9 +74,9 @@ char **env_to_arr(struct hsh_state *state)
 			printerror(state, "malloc");
 			break;
 		}
-		strcpy(envp[i], envhead->name);
-		strcat(envp[i], "=");
-		strcat(envp[i], envhead->value);
+		hsh_strcpy(envp[i], envhead->name);
+		hsh_strcat(envp[i], "=");
+		hsh_strcat(envp[i], envhead->value);
 		envhead = envhead->next;
 	}
 	envp[i] = NULL;
@@ -115,13 +115,13 @@ env_t *create_venv(const char *name, const char *value)
 
 	if (new == NULL)
 		return (NULL);
-	new->name = strdup(name);
+	new->name = hsh_strdup(name);
 	if (new->name == NULL)
 	{
 		free(new);
 		return (NULL);
 	}
-	new->value = strdup(value);
+	new->value = hsh_strdup(value);
 	if (new->value == NULL)
 	{
 		free(new->name);

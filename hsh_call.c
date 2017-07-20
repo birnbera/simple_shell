@@ -7,11 +7,12 @@
  */
 void search_and_exec(struct hsh_state *state)
 {
+	state->commandcount += 1;
 	if (check_builtin(state) == 0)
 		return;
 	if (check_path(state) == 0)
 		return;
-	printerror(state, "");
+	printerror(state, "not found\n");
 }
 
 /**
@@ -30,7 +31,7 @@ int check_builtin(struct hsh_state *state)
 
 	for (i = 0; command && *command && builtins && builtins[i]->name; i++)
 	{
-		if (strcmp(command[0], builtins[i]->name) == 0)
+		if (hsh_strcmp(command[0], builtins[i]->name) == 0)
 		{
 			builtins[i]->func(state);
 			return (0);
@@ -62,7 +63,7 @@ int check_path(struct hsh_state *state)
 		call(state, command[0]);
 		return (0);
 	}
-	path_copy = strdup(path);
+	path_copy = hsh_strdup(path);
 	if (path_copy == NULL)
 	{
 		printerror(state, "malloc");
@@ -71,13 +72,14 @@ int check_path(struct hsh_state *state)
 	dir = hsh_strtok(path_copy, ":");
 	while (dir)
 	{
-		strcpy(full_path, dir);
-		if (full_path[strlen(full_path) - 1] != '/')
-			strcat(full_path, "/");
-		strcat(full_path, state->command[0]);
+		hsh_strcpy(full_path, dir);
+		if (full_path[hsh_strlen(full_path) - 1] != '/')
+			hsh_strcat(full_path, "/");
+		hsh_strcat(full_path, state->command[0]);
 		if (access(full_path, F_OK) == 0)
 		{
 			call(state, full_path);
+			free(path_copy);
 			return (0);
 		}
 		dir = hsh_strtok(NULL, ":");
@@ -96,9 +98,11 @@ void call(struct hsh_state *state, const char *full_path)
 {
 	char **envp;
 	pid_t child = fork();
+	sig_t oldhandler;
 
 	if (child < 0)
 		printerror(state, "fork");
+	oldhandler = signal(SIGINT, SIG_IGN);
 	if (child == 0)
 	{
 		envp = env_to_arr(state);
@@ -111,4 +115,5 @@ void call(struct hsh_state *state, const char *full_path)
 	}
 	if (child > 0)
 		wait(&state->status);
+	signal(SIGINT, oldhandler);
 }

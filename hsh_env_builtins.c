@@ -1,28 +1,6 @@
 #include "hsh.h"
 
 /**
- * hsh_puts - utility to write a string to stdout
- * @str: string to write verbatim
- */
-void hsh_puts(const char * const str)
-{
-	size_t i;
-
-	for (i = 0; str[i]; i++)
-		;
-	write(1, str, i);
-}
-
-/**
- * hsh_putchar - utility to write a single char to stdou
- * @c: char to write
- */
-void hsh_putchar(const char c)
-{
-	write(1, &c, 1);
-}
-
-/**
  * hsh_env - print list of environment variables to stdout
  * @state: struct of current state variables
  */
@@ -52,7 +30,7 @@ int hsh_unsetenv(struct hsh_state *state, const char *name)
 {
 	env_t *last, *envhead = state->env;
 
-	if (name == NULL || *name == '\0' || strchr(name, '='))
+	if (name == NULL || *name == '\0' || hsh_strchr(name, '='))
 	{
 		errno = EINVAL;
 		printerror(state, "unsetenv");
@@ -60,7 +38,7 @@ int hsh_unsetenv(struct hsh_state *state, const char *name)
 	}
 	if (envhead == NULL)
 		return (0);
-	if (strcmp(envhead->name, name) == 0)
+	if (hsh_strcmp(envhead->name, name) == 0)
 	{
 		state->env = envhead->next;
 		state->envsize--;
@@ -73,7 +51,7 @@ int hsh_unsetenv(struct hsh_state *state, const char *name)
 	envhead = envhead->next;
 	while (envhead)
 	{
-		if (strcmp(envhead->name, name) == 0)
+		if (hsh_strcmp(envhead->name, name) == 0)
 		{
 			last->next = envhead->next;
 			state->envsize--;
@@ -104,7 +82,7 @@ int hsh_setenv(struct hsh_state *state,
 	env_t *new, *envhead = state->env;
 	char *valuecpy;
 
-	if (name == NULL || *name == '\0' || strchr(name, '='))
+	if (name == NULL || *name == '\0' || hsh_strchr(name, '='))
 	{
 		errno = EINVAL;
 		printerror(state, "setenv");
@@ -112,10 +90,10 @@ int hsh_setenv(struct hsh_state *state,
 	}
 	while (envhead && envhead->next)
 	{
-		if (overwrite && strcmp(envhead->name, name) == 0)
+		if (overwrite && hsh_strcmp(envhead->name, name) == 0)
 		{
 
-			valuecpy = strdup(value);
+			valuecpy = hsh_strdup(value);
 			if (valuecpy == NULL)
 			{
 				printerror(state, "setenv");
@@ -156,7 +134,7 @@ char *hsh_getenv(struct hsh_state *state, const char *name)
 
 	while (envhead)
 	{
-		if (strcmp(envhead->name, name) == 0)
+		if (hsh_strcmp(envhead->name, name) == 0)
 			return (envhead->value);
 		envhead = envhead->next;
 	}

@@ -14,6 +14,7 @@ void get_next_line(struct hsh_state *state)
 		{
 			printerror(state, "getline");
 		}
+		hsh_putchar('\n');
 		exit_and_free(state);
 	}
 }
@@ -26,7 +27,7 @@ void get_next_line(struct hsh_state *state)
 void tokenize(struct hsh_state *state)
 {
 	char **command, **tmp, *line, *tok, *delims = "\n\t\r\v ";
-	size_t argc, malloc_size = 16;
+	size_t argc, new_malloc_size = 16, malloc_size = 16;
 
 	line = state->lineptr;
 	if (line == NULL)
@@ -43,7 +44,7 @@ void tokenize(struct hsh_state *state)
 	tok = hsh_strtok(line, delims);
 	for (argc = 0; tok; argc++)
 	{
-		command[argc] = strdup(tok);
+		command[argc] = hsh_strdup(tok);
 		if (command[argc] == NULL)
 		{
 			printerror(state, "strdup");
@@ -52,8 +53,10 @@ void tokenize(struct hsh_state *state)
 		tok = hsh_strtok(NULL, delims);
 		if (argc == malloc_size - 1)
 		{
-			malloc_size *= 2;
-			tmp = realloc(command, sizeof(char *) * malloc_size);
+			new_malloc_size *= 2;
+			tmp = hsh_realloc(command, sizeof(char *) * malloc_size,
+				       sizeof(char *) * new_malloc_size);
+			malloc_size = new_malloc_size;
 			if (tmp == NULL)
 			{
 				printerror(state, "realloc");
