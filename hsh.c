@@ -23,10 +23,28 @@ void handler(int sig)
  */
 int main(int argc, char *argv[], char *envp[])
 {
+	pid_t child;
 	struct hsh_state state;
-	(void)(argc);
 
 	init_state(&state, argv, envp);
+	if (argc > 1)
+	{
+		child = fork();
+		if (child == -1)
+			printerror(&state, NULL);
+		if (child == 0)
+		{
+			if (execve(argv[1], argv + 1, envp))
+			{
+				printerror(&state, NULL);
+				exit_and_free(&state);
+			}
+		}
+		if (child > 0)
+			wait(&(&state)->status);
+		exit_and_free(&state);
+	}
+
 	if (isatty(STDIN_FILENO))
 		signal(SIGINT, handler);
 	while (1)
