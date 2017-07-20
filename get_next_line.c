@@ -31,14 +31,11 @@ void tokenize(struct hsh_state *state)
 
 	line = state->lineptr;
 	if (line == NULL)
-	{
-		printerror(state, "tokenize");
 		exit_and_free(state);
-	}
 	command = malloc(sizeof(char *) * malloc_size);
 	if (command == NULL)
 	{
-		printerror(state, "malloc");
+		printerror(state, NULL);
 		exit_and_free(state);
 	}
 	tok = hsh_strtok(line, delims);
@@ -47,7 +44,7 @@ void tokenize(struct hsh_state *state)
 		command[argc] = hsh_strdup(tok);
 		if (command[argc] == NULL)
 		{
-			printerror(state, "strdup");
+			printerror(state, NULL);
 			exit_and_free(state);
 		}
 		tok = hsh_strtok(NULL, delims);
@@ -59,7 +56,7 @@ void tokenize(struct hsh_state *state)
 			malloc_size = new_malloc_size;
 			if (tmp == NULL)
 			{
-				printerror(state, "realloc");
+				printerror(state, NULL);
 				exit_and_free(state);
 			}
 			command = tmp;
