@@ -65,6 +65,7 @@ void exit_and_free(struct hsh_state *state)
 	free_builtins(state);
 	free_vars(state);
 	free_aliases(state);
-
+	if (errno == ENOENT)
+		state->status = 127;
 	exit(state->status);
 }
