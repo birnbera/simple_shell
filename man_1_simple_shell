@@ -1,0 +1,71 @@
+.TH SIMPLE_SHELL 1 "July 20, 2017" v1.0
+.SH NAME
+.BR "hsh" " - simple shell program"
+.SH SYNOPSIS
+.BR hsh " ["
+.IR "command_name" " [" "argument" " " "..." " ]]"
+.PP
+.BR hsh " ["
+.IR "command_file" " ]"
+.SH DESCRIPTION
+.B hsh
+is a simple shell program, designed to emulate the basic functionality of
+.BR dash .
+As a command interpreter it is capable of executing external programs either
+using the
+.I " `PATH`"
+environment variable or using an absolute path, supplied by the user. It can
+be invoked in interactive mode by executing
+.B hsh
+directly. In this case, commands can be entered on the command line and will
+be executed after pressing `return`. In all cases, the arguments to the command
+will be parsed and fed to
+.B execve()
+after the full path of the executable is determined.
+.PP
+.B hsh
+can also be used non-interactively by piping the standard output from a shell
+that has implemented pipes to the standard input of
+.BR hsh .
+.PP
+In addition,
+.B hsh
+can be used to execute simple scripts with no more than a single command per
+line ending with a newline character. When executing scripts in the current
+directory it is not necessary to have the current directory set in the
+.RI ` PATH "`."
+variable. However, for binary executables they must be invoked with the full
+path or have their root directory listed in
+.RI ` PATH "`."
+.PP
+If
+.B hsh
+detects an error or fails to fork a new process an error message will be printed
+to
+.IR stderr.
+Error messages may also be generated directly by child processes or failures of
+internal functions, such as calls to
+.B malloc().
+.SH BUILTINS
+Currenty the only builtin functions that have been implemented are
+.IR "exit" " and " "env" "."
+.PP
+.RS
+.IR env -
+entering
+.I env
+on the command line, or in a command file will print a list of all currently set
+environment variables.
+.PP
+.IR exit -
+this builtin function will cause the shell program to terminate.
+.I exit
+can also take an argument, which is the status code with which it should exit.
+This status code can be retrieved by the calling process.
+.RE
+.SH BUGS
+Any bugs should be reported to the author.
+.SH AUTHOR
+Written by Andrew Birnberg <andrew.birnberg@gmail.com>
+.SH SEE ALSO
+dash(1), shell(1), bash(1)
