@@ -10,7 +10,6 @@
 #include <signal.h>
 #include <fcntl.h>
 #include <errno.h>
-#include <string.h>
 #include <ctype.h>
 
 /**
@@ -46,7 +45,7 @@ typedef struct alias alias_t;
  * @aliases: pointer to list of command aliases
  * @commandcount: number of commands so far executed by the current shell
  * @status: return status of previous command
- * @errno: pointer to currently set errno value
+ * @err: pointer to currently set errno value
  *
  * Description: This struct contains all the information about the current
  * state of the shell program and is passed from function to function. This
@@ -132,7 +131,7 @@ struct builtin
 };
 
 void print_prompt(void);
-void printerror(struct hsh_state *, const char * const msg);
+void printerror(struct hsh_state *, const char * const);
 void get_next_line(struct hsh_state *);
 char *hsh_strtok(char *, const char *);
 void tokenize(struct hsh_state *);
@@ -159,5 +158,14 @@ void hsh_puts(const char * const);
 void hsh_putchar(const char);
 void call(struct hsh_state *, const char *);
 void set_builtins(struct hsh_state *);
+char *hsh_strdup(const char *);
+int hsh_strcmp(const char *, const char *);
+char *hsh_strcpy(char *, const char *);
+size_t hsh_strlen(const char *);
+char *hsh_strcat(char *, const char *);
+char *hsh_strchr(const char *, int);
+int hsh_atoi(char *);
+int hsh_isdigit(char);
+void *hsh_realloc(void *, size_t, size_t);
 
 #endif /* _HSH_H_ */
